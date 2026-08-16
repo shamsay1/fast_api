@@ -1,30 +1,59 @@
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker, declarative_base
+import os
 
-DATABASE_URL = (
-    "postgresql+asyncpg://my_fastapi_db_36ct_user:"
-    "PASSWORD@dpg-da0t81fqj5pc73b871u0-a:5432/"
-    "my_fastapi_db_36ct"
+from sqlalchemy.ext.asyncio import (
+    create_async_engine,
+    AsyncSession,
+)
+from sqlalchemy.orm import (
+    sessionmaker,
+    declarative_base,
 )
 
-# Async engine
+
+# ==========================================
+# DATABASE URL
+# ==========================================
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise RuntimeError(
+        "DATABASE_URL environment variable is not set"
+    )
+
+
+# ==========================================
+# ASYNC ENGINE
+# ==========================================
+
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True,
+    echo=False,
 )
 
-# Async session
+
+# ==========================================
+# ASYNC SESSION
+# ==========================================
+
 AsyncSessionLocal = sessionmaker(
     bind=engine,
     class_=AsyncSession,
     expire_on_commit=False,
 )
 
-# Base model
+
+# ==========================================
+# BASE MODEL
+# ==========================================
+
 Base = declarative_base()
 
 
-# FastAPI dependency
+# ==========================================
+# FASTAPI DATABASE DEPENDENCY
+# ==========================================
+
 async def get_db():
     async with AsyncSessionLocal() as session:
         try:
